@@ -1,60 +1,87 @@
-const gridCols = 8;
-const gridRows = 6;
-let grid = [];
+let sides = 6; 
+let hexR = 80; let arcD = hexR; 
+let w, h, stepX, stepY;
+let cols, rows;
+let hexagons = [];
+
+let distFromCenter = hexR / 6;
+let thickness = 8;
+
+let types = ['A', 'B', 'C', 'D'];
+let palette = ["#abcd5e", "#14976b", "#2b67af", "#62b6de", "#f589a3", "#ef562f", "#fc8405", "#f9d531"]; 
+
+// Matter.js
+const {Engine, Body, Bodies, Composite} = Matter;
+let engine;
+let boxes = []; 
+let x = 100, y = 100, boxSize = 10;
+
 
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
+  createCanvas(400, 400);
+  rectMode(CENTER);
+  engine = Engine.create();
+  
+  h = Math.sqrt(3) * hexR;
+  w = 2 * hexR;
+  stepX = 1.5 * hexR;
+  stepY = h;
 
-  const bauhausColors = [
-    color(255, 240, 150), // Pastel Yellow
-    color(255, 150, 150), // Pastel Red
-    color(150, 200, 255), // Pastel Blue
-    color(180, 180, 180), // Light Gray
-  ];
+  cols = floor((width + hexR) / stepX) + 1;
+  rows = floor((height + h/2) / stepY) + 1;
+  
+  for (let i = 0; i < cols; i++) {
+    hexagons[i] = [];
+    for (let j = 0; j < rows; j++) {
+      let x = i * stepX;
+      let y = (i % 2 === 0) ? j * stepY : j * stepY + h/2;
 
-  const marginX = width * 0.15;
-  const marginY = height * 0.15;
-  const drawingWidth = width - 2 * marginX;
-  const drawingHeight = height - 2 * marginY;
+      const canvasX = x + width/2  - (cols-1)*stepX/2;
+      const canvasY = y + height/2 - (rows-1)*stepY/2;
 
-  let cellSize = Math.min(drawingWidth / gridCols, drawingHeight / gridRows);
-
-  const gridWidth = gridCols * cellSize;
-  const gridHeight = gridRows * cellSize;
-
-  const offsetX = (width - gridWidth) / 2;
-  const offsetY = (height - gridHeight) / 2;
-
-  for (let i = 0; i < gridCols; i++) {
-    grid[i] = [];
-    for (let j = 0; j < gridRows; j++) {
-      const x = offsetX + i * cellSize + cellSize / 2 - width / 2;
-      const y = offsetY + j * cellSize + cellSize / 2 - height / 2;
-      const colorIndex = (i + j) % bauhausColors.length;
-      const cellColor = bauhausColors[colorIndex];
-      grid[i][j] = new Block(x, y, cellSize, cellColor);
+      const type = random(types);
+      const hexagon = new Hex(canvasX, canvasY, type);
+      hexagons[i][j] = hexagon;
     }
   }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  // Re-initialize grid on resize to recalculate positions and sizes
-  setup();
+  
 }
 
 function draw() {
-  background(240);
+  background(0, 0, 100);
+  Engine.update(engine);
   
-  // Lighting
-  ambientLight(150);
-  directionalLight(255, 255, 255, 0.5, 0.5, -1);
-
-  for (let i = 0; i < gridCols; i++) {
-    for (let j = 0; j < gridRows; j++) {
-      // The mouse coordinates need to be adjusted for the WEBGL mode and the centered canvas
-      grid[i][j].update(mouseX - width / 2, mouseY - height / 2);
-      grid[i][j].draw();
+  if (random()<0.1) {
+    let x = floor(random(0, cols));
+    let y = floor(random(0, rows));
+    hexagons[x][y].startRotation();
+  }
+  
+  for (let i=boxes.length-1; i>=0; i--) {
+    boxes[i].checkDone();
+    boxes[i].display();
+    
+    if (boxes[i].done == true) {
+      boxes[i].removeBox();
+      boxes.splice(i, 1);
     }
   }
+  
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      hexagons[i][j].update();
+      hexagons[i][j].display();
+    }
+  }
+  
 }
+
+function mousePressed() {
+  let newBox = new Rect(mouseX, mouseY, boxSize, boxSize);
+  boxes.push(newBox);
+}
+
+
+
+
+
