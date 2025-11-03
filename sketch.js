@@ -13,12 +13,14 @@ let palette = ["#abcd5e", "#14976b", "#2b67af", "#62b6de", "#f589a3", "#ef562f",
 // Matter.js
 const {Engine, Body, Bodies, Composite} = Matter;
 let engine;
-let boxes = []; 
-let x = 100, y = 100, boxSize = 10;
+let shapes = []; 
+let shapeSize = 10;
 
+let shapeTypes = ['rectangle', 'circle', 'triangle'];
+let currentShapeIndex = 0;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 600);
   rectMode(CENTER);
   engine = Engine.create();
   
@@ -30,6 +32,11 @@ function setup() {
   cols = floor((width + hexR) / stepX) + 1;
   rows = floor((height + h/2) / stepY) + 1;
   
+  createGrid();
+}
+
+function createGrid() {
+  hexagons = [];
   for (let i = 0; i < cols; i++) {
     hexagons[i] = [];
     for (let j = 0; j < rows; j++) {
@@ -44,7 +51,15 @@ function setup() {
       hexagons[i][j] = hexagon;
     }
   }
-  
+}
+
+function reset() {
+  for (let i = shapes.length - 1; i >= 0; i--) {
+    shapes[i].removeBox();
+    shapes.splice(i, 1);
+  }
+  Composite.clear(engine.world, false);
+  createGrid();
 }
 
 function draw() {
@@ -57,13 +72,13 @@ function draw() {
     hexagons[x][y].startRotation();
   }
   
-  for (let i=boxes.length-1; i>=0; i--) {
-    boxes[i].checkDone();
-    boxes[i].display();
+  for (let i=shapes.length-1; i>=0; i--) {
+    shapes[i].checkDone();
+    shapes[i].display();
     
-    if (boxes[i].done == true) {
-      boxes[i].removeBox();
-      boxes.splice(i, 1);
+    if (shapes[i].done == true) {
+      shapes[i].removeBox();
+      shapes.splice(i, 1);
     }
   }
   
@@ -73,15 +88,27 @@ function draw() {
       hexagons[i][j].display();
     }
   }
-  
 }
 
 function mousePressed() {
-  let newBox = new Rect(mouseX, mouseY, boxSize, boxSize);
-  boxes.push(newBox);
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+    let newShape;
+    let shapeType = shapeTypes[currentShapeIndex];
+    if (shapeType === 'rectangle') {
+      newShape = new Rect(mouseX, mouseY, shapeSize, shapeSize);
+    } else if (shapeType === 'circle') {
+      newShape = new Circle(mouseX, mouseY, shapeSize / 2);
+    } else if (shapeType === 'triangle') {
+      newShape = new Triangle(mouseX, mouseY, shapeSize);
+    }
+    shapes.push(newShape);
+  }
 }
 
-
-
-
-
+function keyPressed() {
+  if (key === ' ') {
+    reset();
+  } else if (key === 's') {
+    currentShapeIndex = (currentShapeIndex + 1) % shapeTypes.length;
+  }
+}
