@@ -4,7 +4,7 @@ class Circle {
       this.done = false;
       this.c = random(palette);
       
-      this.body = Bodies.circle(x, y, this.r);
+      this.body = Bodies.circle(x, y, this.r, {label: 'shape'});
       Body.setAngularVelocity(this.body, 0.2);
       Composite.add(engine.world, this.body);
     }

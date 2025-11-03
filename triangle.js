@@ -4,7 +4,7 @@ class Triangle {
       this.done = false;
       this.c = random(palette);
       
-      this.body = Bodies.polygon(x, y, 3, this.size);
+      this.body = Bodies.polygon(x, y, 3, this.size, {label: 'shape'});
       Body.setAngularVelocity(this.body, 0.2);
       Composite.add(engine.world, this.body);
     }

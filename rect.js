@@ -5,7 +5,7 @@ class Rect {
       this.done = false;
       this.c = random(palette);
       
-      this.body = Bodies.rectangle(x, y, this.w, this.h);
+      this.body = Bodies.rectangle(x, y, this.w, this.h, {label: 'shape'});
       Body.setAngularVelocity(this.body, 0.2);
       Composite.add(engine.world, this.body);
     }

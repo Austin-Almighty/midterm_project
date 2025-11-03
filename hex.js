@@ -1,7 +1,27 @@
 class Hex {
-    constructor(x, y, type) {
+    constructor(x, y, type, lineColor, i, j) {
       this.pos = createVector(x, y);
       this.type = type;
+      this.lineColor = lineColor;
+      this.gridI = i;
+      this.gridJ = j;
+      this.connections = [];
+      switch(this.type) {
+        case 'A':
+          this.connections.push([1, 4]);
+          break;
+        case 'B':
+          this.connections.push([0, 5]);
+          this.connections.push([1, 2]);
+          this.connections.push([3, 4]);
+          break;
+        case 'C':
+          this.connections.push([1, 4]);
+          break;
+        case 'D':
+          this.connections.push([0, 5]);
+          break;
+      }
       
       this.corners = []; 
       this.midpoints = [];
@@ -62,7 +82,7 @@ class Hex {
       let canvasX = this.pos.x + rx;
       let canvasY = this.pos.y + ry;
       
-      let body = Bodies.fromVertices(canvasX, canvasY, [vertexSet], {isStatic: true}, true);
+      let body = Bodies.fromVertices(canvasX, canvasY, [vertexSet], {isStatic: true, label: 'tile'}, true);
       Body.setAngle(body, this.currentAngle);
       Composite.add(engine.world, body);
       
@@ -159,7 +179,7 @@ class Hex {
       let smallArcLength = TWO_PI/3;
       let bigArcLength = PI/3;
       
-      noFill(); stroke(255);
+      noFill(); stroke(this.lineColor);
       for (let i=0; i<this.polygons.length; i++) {
         beginShape();
         for (let j=0; j<this.polygons[i].length; j++) {
