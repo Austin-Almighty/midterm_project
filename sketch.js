@@ -25,6 +25,9 @@ let backgroundColor, tileLineColor;
 let electricityPath = [];
 let electricityLifespan = 0;
 
+let gravityStates = ['normal', 'reversed', 'strong'];
+let currentGravityIndex = 0;
+
 function setup() {
   createCanvas(800, 600);
   rectMode(CENTER);
@@ -139,6 +142,24 @@ function draw() {
       particles.splice(i, 1);
     }
   }
+
+  // Display gravity status
+  push(); // Isolate drawing state
+  textSize(16);
+  let gravityText = 'Gravity: ' + gravityStates[currentGravityIndex];
+  let textW = textWidth(gravityText);
+  let textH = 20;
+  let padding = 5;
+
+  rectMode(CORNER);
+  noStroke();
+  fill(0, 0, 0, 50); // Dark background with some transparency
+  rect(10, 10, textW + padding * 2, textH + padding * 2);
+
+  fill(0, 0, 100); // White text
+  textAlign(LEFT, TOP);
+  text(gravityText, 10 + padding, 10 + padding);
+  pop(); // Restore original drawing state
 }
 
 function findElectricityPath() {
@@ -271,5 +292,15 @@ function keyPressed() {
     reset();
   } else if (key === 's') {
     currentShapeIndex = (currentShapeIndex + 1) % shapeTypes.length;
+  } else if (key === 'g') {
+    currentGravityIndex = (currentGravityIndex + 1) % gravityStates.length;
+    let gravityState = gravityStates[currentGravityIndex];
+    if (gravityState === 'normal') {
+      engine.world.gravity.y = 1;
+    } else if (gravityState === 'reversed') {
+      engine.world.gravity.y = -1;
+    } else if (gravityState === 'strong') {
+      engine.world.gravity.y = 2;
+    }
   }
 }
