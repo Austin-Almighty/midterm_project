@@ -103,6 +103,8 @@ function draw() {
   background(backgroundColor);
   Engine.update(engine);
   
+  handleWind();
+
   if (random()<0.1) {
     let x = floor(random(0, cols));
     let y = floor(random(0, rows));
@@ -160,6 +162,25 @@ function draw() {
   textAlign(LEFT, TOP);
   text(gravityText, 10 + padding, 10 + padding);
   pop(); // Restore original drawing state
+}
+
+function handleWind() {
+  let windForce = createVector(0, 0);
+  if (keyIsDown(LEFT_ARROW)) {
+    windForce.x = -0.001;
+  } else if (keyIsDown(RIGHT_ARROW)) {
+    windForce.x = 0.001;
+  }
+
+  if (keyIsDown(UP_ARROW)) {
+    windForce.y = -0.001;
+  } else if (keyIsDown(DOWN_ARROW)) {
+    windForce.y = 0.001;
+  }
+
+  for (let shape of shapes) {
+    Body.applyForce(shape.body, shape.body.position, windForce);
+  }
 }
 
 function findElectricityPath() {
