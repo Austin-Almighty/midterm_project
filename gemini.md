@@ -13,7 +13,7 @@ The project is a dynamic, interactive physics simulation featuring a hexagonal g
 *   **Droppable Shapes:** Users can drop rectangles, circles, and triangles into the simulation.
 *   **Dynamic Colors:** The background and tile colors change to a new random complementary pair on every reset.
 *   **Collision Sparks:** A burst of particles is generated at the point of collision between a shape and a tile.
-*   **Electricity Effect:** A random, flashing electricity effect traces a path along the connected tile patterns.
+
 *   **Gravity Manipulation:** Users can cycle through normal, reversed, and strong gravity.
 *   **Wind Control:** Users can apply a continuous horizontal and vertical wind force to the falling shapes.
 
@@ -30,7 +30,7 @@ The `rect.js`, `circle.js`, and `triangle.js` files define classes for the dropp
 ### Interaction and Effects
 
 *   **Collision Handling:** `sketch.js` listens for `collisionStart` events from the Matter.js engine. When a 'shape' and a 'tile' collide, it triggers the creation of `Particle` objects (from `particle.js`) to create the spark effect.
-*   **Electricity:** A pathfinding algorithm in `sketch.js` periodically finds a random connected path through the tile grid. A `drawLightning` function then renders a jagged, flickering line along this path.
+
 *   **User Input:** The `keyPressed()` function in `sketch.js` handles shape switching, gravity changes, and resetting the simulation. The `handleWind()` function in the `draw()` loop continuously checks for arrow key presses to apply the wind force.
 
 ## Technologies Used
