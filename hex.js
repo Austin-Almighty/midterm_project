@@ -83,11 +83,18 @@ class Hex {
       let canvasY = this.pos.y + ry;
       
       let body = Bodies.fromVertices(canvasX, canvasY, [vertexSet], {isStatic: true, label: 'tile'}, true);
-      Body.setAngle(body, this.currentAngle);
-      Composite.add(engine.world, body);
+      
+      if (body) {
+        Body.setAngle(body, this.currentAngle);
+        Composite.add(engine.world, body);
+      } else {
+        console.warn("Failed to create body for tile type " + this.type);
+      }
       
       return body;
     }
+
+
     
     startRotation() {
       if (!this.isRotating) {
@@ -139,26 +146,26 @@ class Hex {
       switch (this.type) {
         case 'A' :
           this.addPair(getRectPair(this.midpoints[1], this.midpoints[4], distFromCenter, thickness)); 
-          this.addPair(getArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
-          this.addPair(getArcPair(this.corners[3].x, this.corners[3].y, arcD/2, distFromCenter, thickness, -PI/3, -PI/3 + smallArcLength)); 
+          this.addPair(getStraightArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
+          this.addPair(getStraightArcPair(this.corners[3].x, this.corners[3].y, arcD/2, distFromCenter, thickness, -PI/3, -PI/3 + smallArcLength)); 
           break;
           
         case 'B':
-          this.addPair(getArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
-          this.addPair(getArcPair(this.corners[2].x, this.corners[2].y, arcD/2, distFromCenter, thickness, 4*PI/3, 4*PI/3 + smallArcLength));
-          this.addPair(getArcPair(this.corners[4].x, this.corners[4].y, arcD/2, distFromCenter, thickness, 0, smallArcLength));
+          this.addPair(getStraightArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
+          this.addPair(getStraightArcPair(this.corners[2].x, this.corners[2].y, arcD/2, distFromCenter, thickness, 4*PI/3, 4*PI/3 + smallArcLength));
+          this.addPair(getStraightArcPair(this.corners[4].x, this.corners[4].y, arcD/2, distFromCenter, thickness, 0, smallArcLength));
           break;
   
         case 'C':
           this.addPair(getRectPair(this.midpoints[1], this.midpoints[4], distFromCenter, thickness));
-          this.addPair(getArcPair(0, h, 3*arcD/2, distFromCenter, thickness, 4*PI/3, 4*PI/3 + bigArcLength));
-          this.addPair(getArcPair(0, -h, 3*arcD/2, distFromCenter, thickness, PI/3, PI/3 + bigArcLength));
+          this.addPair(getStraightArcPair(0, h, 3*arcD/2, distFromCenter, thickness, 4*PI/3, 4*PI/3 + bigArcLength));
+          this.addPair(getStraightArcPair(0, -h, 3*arcD/2, distFromCenter, thickness, PI/3, PI/3 + bigArcLength));
           break;
   
         case 'D':
-          this.addPair(getArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
-          this.addPair(getArcPair(-1.5*hexR, h/2, 3*arcD/2, distFromCenter, thickness, -PI/3, -PI/3 + bigArcLength));
-          this.addPair(getArcPair(-1.5*hexR, -h/2, 3*arcD/2, distFromCenter, thickness, 0, bigArcLength));
+          this.addPair(getStraightArcPair(this.corners[0].x, this.corners[0].y, arcD/2, distFromCenter, thickness, TWO_PI/3, TWO_PI/3 + smallArcLength));
+          this.addPair(getStraightArcPair(-1.5*hexR, h/2, 3*arcD/2, distFromCenter, thickness, -PI/3, -PI/3 + bigArcLength));
+          this.addPair(getStraightArcPair(-1.5*hexR, -h/2, 3*arcD/2, distFromCenter, thickness, 0, bigArcLength));
           break;
       }
       
@@ -171,15 +178,36 @@ class Hex {
       translate(this.pos.x, this.pos.y);
       rotate(this.currentAngle);
       this.drawHexagon();
+      this.drawBuildings();
       this.drawPattern();
+      this.drawRoadMarkings();
       pop();
+    }
+
+    drawBuildings() {
+      // Draw simple building footprints in the negative space
+      // Just drawing a few rects in the center or corners based on type
+      fill(30, 30, 40); // Dark building color
+      noStroke();
+      
+      // Simple heuristic: Draw a central block if it's not crossed by a center line
+      if (this.type === 'B' || this.type === 'D') {
+        rect(0, 0, hexR * 0.5, hexR * 0.5);
+      }
+      
+      // Draw smaller blocks in corners
+      for(let i=0; i<6; i+=2) {
+         let v = this.corners[i].copy().mult(0.6);
+         rect(v.x, v.y, hexR * 0.2, hexR * 0.2);
+      }
     }
     
     drawPattern() {
       let smallArcLength = TWO_PI/3;
       let bigArcLength = PI/3;
       
-      noFill(); stroke(this.lineColor);
+      fill(50); // Dark Asphalt
+      noStroke();
       for (let i=0; i<this.polygons.length; i++) {
         beginShape();
         for (let j=0; j<this.polygons[i].length; j++) {
@@ -189,6 +217,55 @@ class Hex {
       }
       
    
+    }
+
+    drawRoadMarkings() {
+      stroke(255, 204, 0); // Yellow markings
+      strokeWeight(2);
+      drawingContext.setLineDash([5, 5]); // Dashed line
+      noFill();
+      
+      let smallArcLength = TWO_PI/3;
+      let bigArcLength = PI/3;
+
+      switch (this.type) {
+        case 'A':
+          this.drawDashedLine(this.midpoints[1], this.midpoints[4]);
+          this.drawStraightDashedArc(this.corners[0].x, this.corners[0].y, arcD/2, TWO_PI/3, TWO_PI/3 + smallArcLength);
+          this.drawStraightDashedArc(this.corners[3].x, this.corners[3].y, arcD/2, -PI/3, -PI/3 + smallArcLength);
+          break;
+        case 'B':
+          this.drawStraightDashedArc(this.corners[0].x, this.corners[0].y, arcD/2, TWO_PI/3, TWO_PI/3 + smallArcLength);
+          this.drawStraightDashedArc(this.corners[2].x, this.corners[2].y, arcD/2, 4*PI/3, 4*PI/3 + smallArcLength);
+          this.drawStraightDashedArc(this.corners[4].x, this.corners[4].y, arcD/2, 0, smallArcLength);
+          break;
+        case 'C':
+          this.drawDashedLine(this.midpoints[1], this.midpoints[4]);
+          this.drawStraightDashedArc(0, h, 3*arcD/2, 4*PI/3, 4*PI/3 + bigArcLength);
+          this.drawStraightDashedArc(0, -h, 3*arcD/2, PI/3, PI/3 + bigArcLength);
+          break;
+        case 'D':
+          this.drawStraightDashedArc(this.corners[0].x, this.corners[0].y, arcD/2, TWO_PI/3, TWO_PI/3 + smallArcLength);
+          this.drawStraightDashedArc(-1.5*hexR, h/2, 3*arcD/2, -PI/3, -PI/3 + bigArcLength);
+          this.drawStraightDashedArc(-1.5*hexR, -h/2, 3*arcD/2, 0, bigArcLength);
+          break;
+      }
+      
+      drawingContext.setLineDash([]); // Reset dash
+    }
+
+    drawDashedLine(p1, p2) {
+      line(p1.x, p1.y, p2.x, p2.y);
+    }
+
+    drawStraightDashedArc(cx, cy, r, startAng, endAng) {
+       // Calculate start and end points of the "arc"
+       let R = r + distFromCenter;
+       let x1 = cx + R * cos(startAng);
+       let y1 = cy + R * sin(startAng);
+       let x2 = cx + R * cos(endAng);
+       let y2 = cy + R * sin(endAng);
+       line(x1, y1, x2, y2);
     }
   
     drawHexagon() {
@@ -283,12 +360,18 @@ class Hex {
     
   }
   
-  function getArcPair(cx, cy, centerR, distFromCenter, thickness, startAng, endAng, step) {
-    let outerArc = getArc(cx, cy, centerR, distFromCenter, thickness, startAng, endAng, step);
-    let innerArc = getArc(cx, cy, centerR, -distFromCenter, thickness, startAng, endAng, step);
-    
-    return [outerArc, innerArc];
-  
+  function getStraightArcPair(cx, cy, centerR, distFromCenter, thickness, startAng, endAng) {
+     // Calculate start and end points of the "arc"
+     let R = centerR + distFromCenter;
+     let x1 = cx + R * cos(startAng);
+     let y1 = cy + R * sin(startAng);
+     let x2 = cx + R * cos(endAng);
+     let y2 = cy + R * sin(endAng);
+     
+     let p1 = createVector(x1, y1);
+     let p2 = createVector(x2, y2);
+     
+     return getRectPair(p1, p2, 0, thickness); // 0 distFromCenter because we already calculated the offset points
   }
   
   function centroid(polygon) {

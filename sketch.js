@@ -47,8 +47,6 @@ function setup() {
 
   h = Math.sqrt(3) * hexR;
 
-  w = 2 * hexR;
-
   stepX = 1.5 * hexR;
 
   stepY = h;
@@ -104,13 +102,9 @@ function setup() {
 
 
 function updateColors() {
-
-  let hue = random(360);
-
-  backgroundColor = color(hue, 50, 30);
-
-  tileLineColor = color((hue + 180) % 360, 50, 90);
-
+  // City Night Theme
+  backgroundColor = color(230, 40, 15); // Dark Blue (HSB)
+  tileLineColor = color(0, 0, 100); // White (unused for road surface but kept for reference)
 }
 
 
