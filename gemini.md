@@ -1,40 +1,53 @@
-# Interactive Physics-Based Art Project
+# Entropy City: Interactive Physics Art
 
-This document provides a technical overview of the interactive art project created with p5.js and Matter.js.
+This document provides a technical overview of "Entropy City," an interactive art project created with p5.js and Matter.js. The project simulates a chaotic urban environment where various city-themed objects interact with a rigid, rectilinear street grid.
 
 ## Core Concepts
 
-The project is a dynamic, interactive physics simulation featuring a hexagonal grid of Truchet tiles. Users can introduce various shapes into the environment, which then interact with the physical patterns on the tiles. The project also includes several visual and interactive effects to create an engaging experience.
+The project transforms the classic Truchet tiling system into a dense urban map. Users introduce chaotic elements (trash, tires, traffic cones) into this orderly grid, creating a dynamic interplay between structure and entropy. The aesthetic is a "City Night" theme with a dark blue background, yellow road markings, and a skyline silhouette.
 
 ## Features
 
-*   **Physics-Based World:** Utilizes the Matter.js engine to create a 2D physics simulation.
-*   **Hexagonal Truchet Tiles:** The environment is a grid of hexagonal tiles, each with a physical pattern based on the Truchet tiling system.
-*   **Droppable Shapes:** Users can drop rectangles, circles, and triangles into the simulation.
-*   **Dynamic Colors:** The background and tile colors change to a new random complementary pair on every reset.
-*   **Collision Sparks:** A burst of particles is generated at the point of collision between a shape and a tile.
+### Urban Environment
+*   **Rectilinear Grid:** The hexagonal tiles now feature straight roads and sharp corners, simulating city blocks.
+*   **Building Footprints:** Negative space in the tiles is filled with simple rectangular building shapes to create density.
+*   **Skyline Background:** A procedurally generated city skyline adds depth to the scene.
+*   **City Night Palette:** A curated color scheme featuring dark asphalt, yellow lane markings, and a deep blue night sky.
 
-*   **Gravity Manipulation:** Users can cycle through normal, reversed, and strong gravity.
-*   **Wind Control:** Users can apply a continuous horizontal and vertical wind force to the falling shapes.
+### Interactive Objects
+Users can spawn a variety of urban debris and items:
+*   **Garbage Can:** A rectangular container.
+*   **Traffic Cone:** A triangular hazard marker.
+*   **Tire:** A circular rolling object.
+*   **Pizza Slice:** A triangular food item.
+*   **Old Boot:** A complex polygon shape representing a discarded boot.
 
-## How it Works
+### Physics & Interaction
+*   **Matter.js Simulation:** A robust 2D physics engine handles collisions, gravity, and forces.
+*   **Gravity Control:** Users can cycle through normal, reversed, and strong gravity states.
+*   **Wind Force:** Arrow keys apply horizontal and vertical wind forces to objects.
+*   **Themed Particles:** Collisions generate spark particles that match the color of the colliding object.
 
-### Grid and Tile Generation
+### Exhibition Polish
+*   **Framed Canvas:** A thick, dark frame with a drop shadow separates the art from the background.
+*   **Clean Interface:** On-screen text instructions and status indicators have been removed for a more immersive experience.
+*   **Large Format:** The canvas is sized at **1200x900** for high visual impact.
 
-The hexagonal grid is generated in `sketch.js`. The `Hex` class in `hex.js` is responsible for creating the geometry of the tile patterns and converting them into static Matter.js bodies. Each body is labeled as a 'tile' for collision detection purposes.
+## Technical Implementation
 
-### Shape Creation
+### Grid Generation (`hex.js`)
+The `Hex` class generates the city blocks. It uses `getStraightArcPair` to create linear paths instead of curves. It also implements `drawBuildings` to render building footprints in the non-road areas of the tile.
 
-The `rect.js`, `circle.js`, and `triangle.js` files define classes for the droppable shapes. Each class creates a dynamic Matter.js body with a label of 'shape'.
+### Object Classes
+Each interactive object has its own class file (e.g., `garbage_can.js`, `boot.js`) that defines its visual appearance and physical properties using `Matter.Bodies`.
+*   **Complex Shapes:** The `OldBoot` class uses `Matter.Bodies.fromVertices` to create a custom physics body matching its visual shape.
 
-### Interaction and Effects
-
-*   **Collision Handling:** `sketch.js` listens for `collisionStart` events from the Matter.js engine. When a 'shape' and a 'tile' collide, it triggers the creation of `Particle` objects (from `particle.js`) to create the spark effect.
-
-*   **User Input:** The `keyPressed()` function in `sketch.js` handles shape switching, gravity changes, and resetting the simulation. The `handleWind()` function in the `draw()` loop continuously checks for arrow key presses to apply the wind force.
+### Main Logic (`sketch.js`)
+*   **Setup:** Initializes the Matter.js engine, creates the grid, and sets up the "City Night" theme.
+*   **Draw Loop:** Handles the physics update, rendering of all objects, and user input.
+*   **Error Handling:** A global `try-catch` block prevents the simulation from freezing silently by displaying error messages on the canvas.
 
 ## Technologies Used
-
-*   **p5.js:** For drawing, animation, and user interaction.
-*   **Matter.js:** For the 2D physics simulation.
-*   **poly-decomp.js:** A dependency for Matter.js to handle complex polygons.
+*   **p5.js:** Rendering and interaction.
+*   **Matter.js:** Physics engine.
+*   **poly-decomp.js:** Polygon decomposition for complex physics bodies.
