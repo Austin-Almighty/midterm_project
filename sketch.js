@@ -35,7 +35,7 @@ let currentGravityIndex = 0;
 
 function setup() {
 
-  createCanvas(800, 600);
+  createCanvas(1200, 900);
 
   rectMode(CENTER);
 
@@ -213,7 +213,8 @@ function draw() {
       }
     }
 
-    // Display gravity status
+    // Display gravity status - REMOVED FOR EXHIBITION
+    /*
     push(); // Isolate drawing state
     textSize(16);
     let gravityText = 'Gravity: ' + gravityStates[currentGravityIndex];
@@ -230,6 +231,7 @@ function draw() {
     textAlign(LEFT, TOP);
     text(gravityText, 10 + padding, 10 + padding);
     pop(); // Restore original drawing state
+    */
 
   } catch (e) {
     console.error(e);

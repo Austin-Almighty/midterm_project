@@ -15,8 +15,9 @@ html, body {
   }
   canvas {
     display: block;
-    border: 1px solid #333;
-    margin-bottom: 20px;
+    border: 20px solid #222; /* Thick dark frame */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5); /* Deep shadow for depth */
+    margin-bottom: 0; /* Removed margin since text is gone */
   }
   p {
     margin: 8px 0;
